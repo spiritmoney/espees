@@ -31,7 +31,7 @@ export const fetchVendingToken = async (
       "Content-Type": "application/json",
       "x-api-key": apiKey,
     },
-    data: {
+    body: {
       vending_wallet_address: agentWallet,
       vending_wallet_pin: agentPin,
       vending_hash: vendingHash,
@@ -78,7 +78,6 @@ export const fetchUserWallet = async (
 
    const data = response.data;
    return data;
-    return data;
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: `Internal Server Error.` });

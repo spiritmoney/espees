@@ -14,6 +14,7 @@ const YourComponent = () => {
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [vendingToken, setVendingToken] = useState<string>("");
+  const [userWalletAddress, setUserWalletAddress] = useState<string>("");
 
   const fetchVendingToken = async () => {
     try {
@@ -36,7 +37,7 @@ const YourComponent = () => {
       });
       console.log(response);
       const data = response.data;
-      return data.wallet_id;
+      setUserWalletAddress(data.wallet_id);
     } catch (err) {
       console.log(err);
     }
@@ -46,10 +47,13 @@ const YourComponent = () => {
     event.preventDefault();
     setIsLoading(true);
 
+    console.log(vendingToken, userWalletAddress);
+    
+
     try {
       const response = await axios.post("https://liquidity-partners.onrender.com/handleVendEspees", {
-        vendingToken,
-        userWalletAddress: "0x1eab27b9f4aedf2e6d7fb7973bd43522bc6317f9",
+        vendingToken: vendingToken,
+        userWalletAddress: userWalletAddress,
         vendingAmount,
       });
       console.log("Response:", response.data); // Log the response data
@@ -69,7 +73,7 @@ const YourComponent = () => {
         <form onSubmit={handleVendEspees}>
           <div className="flex-col border p-10 rounded-lg bg-white">
             {/* Input for username */}
-            <div className="py-5">
+            <div className="py-5 text-black">
               <p>Espees Account to fund</p>
               <input
                 type="text"
@@ -81,7 +85,7 @@ const YourComponent = () => {
             </div>
 
             {/* Input for amount to vend */}
-            <div className="py-5">
+            <div className="py-5 text-black">
               <p>Amount you want to Buy (Espees)</p>
               <input
                 type="number"
