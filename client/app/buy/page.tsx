@@ -18,7 +18,7 @@ const YourComponent = () => {
 
   const fetchVendingToken = async () => {
     try {
-      const response = await axios.post("https://liquidity-partners.onrender.com/fetchVendingToken");
+      const response = await axios.post("https://espees.onrender.com/fetchVendingToken");
       const data = response.data;
       setVendingToken(data.vending_token);
       return data.vending_token;
@@ -32,7 +32,7 @@ const YourComponent = () => {
     try {
       console.log("running");
 
-      const response = await axios.post("https://liquidity-partners.onrender.com/fetchUserWallet", {
+      const response = await axios.post("https://espees.onrender.com/fetchUserWallet", {
         username: username,
       });
       console.log(response);
@@ -51,7 +51,7 @@ const YourComponent = () => {
     
 
     try {
-      const response = await axios.post("https://liquidity-partners.onrender.com/handleVendEspees", {
+      const response = await axios.post("https://espees.onrender.com/handleVendEspees", {
         vendingToken: vendingToken,
         userWalletAddress: userWalletAddress,
         vendingAmount,

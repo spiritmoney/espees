@@ -39,7 +39,7 @@ export const fetchVendingToken = async (
   };
 
   try {
-    const response = await axios.post(url, options.data, {
+    const response = await axios.post(url, options.body, {
       headers: options.headers,
     });
     const data = response.data;
@@ -55,62 +55,60 @@ router.post(`/fetchVendingToken`, fetchVendingToken);
 
 export const fetchUserWallet = async (
   req: Request,
-  res: Response
+  _res: Response
 ): Promise<any> => {
   const { username } = req.body; // Extract username from request body
 
-  try {
+  console.log("fetchUserWallet request", username);
 
-    const url = "https://api.espees.org/user/address"
-
-    const options: any = {
+    const response = await fetch("https://api.espees.org/user/address", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": apiKey,
       },
-      data: {
-        username
-      }
+      body: JSON.stringify({username: username}),
+    });
+
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch wallet for user ${username}`);
     }
+  
+    const responseData = await response.json();
+    console.log("fetchUserWallet response", responseData);
+    console.log(responseData.wallet_id);
+    return responseData.wallet_id;
 
    // Send the request with the username in the request body
-   const response = await axios.post(url, { username }, options);
-
-   const data = response.data;
-   return data;
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: `Internal Server Error.` });
-  }
+  
 };
 
 router.post(`/fetchUserWallet`, fetchUserWallet);
 
-router.post(`/handleVendEspees`, async function (req: any, res: any) {
-  console.log("Received request:", req.body); // Log the received request body
-  const { vendingToken, userWalletAddress, vendingAmount } = req.body; // Extract data from request body
-  try {
-    const vendEspeesResponse = await axios.post(
-      "https://api.espees.org/v2/vending/vend",
-      {
-        vending_token: vendingToken,
-        user_wallet: userWalletAddress,
-        amount_in_espees: vendingAmount,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-        },
-      }
-    );
-    const vendEspeesData = vendEspeesResponse.data;
-    console.log("Vending response:", vendEspeesData); // Log the vending response data
-    res.status(200).json(vendEspeesData); // Respond with vending response data
-  } catch (error) {
-    console.error("Error vending Espees:", error);
-    res.status(500).json({ msg: `Internal Server Error.` });
+router.post(`/handleVendEspees`, async function (req: Request, _res: Response) {
+  console.log("Received request:", req.body); 
+  const { vendingToken, userWalletAddress, vendingAmount } = req.body; 
+  // Extract data from request body
+  const response = await fetch("https://api.espees.org/v2/vending/vend", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+    },
+    body: JSON.stringify({
+      vending_token: vendingToken,
+      user_wallet: userWalletAddress,
+      amount_in_espees: vendingAmount,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to vend Espees");
   }
+  const responseData = await response.json();
+  console.log(responseData);
+  return responseData;
 });
 
 
