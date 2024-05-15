@@ -2,9 +2,13 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import crypto from "crypto";
 import axios from "axios";
+import bodyParser from "body-parser";
 
 const app = express();
 const router = express.Router();
+
+
+app.use(bodyParser.json());
 
 app.use(cors());
 const port = process.env.PORT || 18012;
@@ -75,10 +79,9 @@ export const fetchUserWallet = async (
       throw new Error(`Failed to fetch wallet for user ${username}`);
     }
   
-    const responseData = await response.json();
-    console.log("fetchUserWallet response", responseData);
-    console.log(responseData.wallet_id);
-    return responseData.wallet_id;
+    const data = await response.json();
+    console.log("fetchUserWallet response", data);
+    return data;
 
    // Send the request with the username in the request body
   
