@@ -65,6 +65,7 @@ export const fetchUserWallet = async (
 
   console.log("fetchUserWallet request", username);
 
+  try {
     const response = await fetch("https://api.espees.org/user/address", {
       method: "POST",
       headers: {
@@ -82,14 +83,18 @@ export const fetchUserWallet = async (
     const data = await response.json();
     console.log("fetchUserWallet response", data);
     return res.status(200).json(data);
-  
+  } catch (error) {
+    return res.status(500).json({ msg: `Internal Server Error.` });
+  }
 };
 
 router.post(`/fetchUserWallet`, fetchUserWallet);
 
-router.post(`/handleVendEspees`, async function (req: Request, _res: Response) {
-  console.log("Received request:", req.body); 
-  const { vendingToken, userWalletAddress, vendingAmount } = req.body; 
+router.post(`/handleVendEspees`, async function (req: Request, res: Response) {
+  console.log("Received request:", req.body);
+
+  try {
+    const { vendingToken, userWalletAddress, vendingAmount } = req.body; 
   // Extract data from request body
   const response = await fetch("https://api.espees.org/v2/vending/vend", {
     method: "POST",
@@ -107,9 +112,12 @@ router.post(`/handleVendEspees`, async function (req: Request, _res: Response) {
   if (!response.ok) {
     throw new Error("Failed to vend Espees");
   }
-  const responseData = await response.json();
-  console.log(responseData);
-  return responseData;
+  const data = await response.json();
+  console.log(data);
+  return res.status(200).json(data)
+  } catch (error) {
+    return res.sendStatus(400);
+  }
 });
 
 
