@@ -59,7 +59,7 @@ router.post(`/fetchVendingToken`, fetchVendingToken);
 
 export const fetchUserWallet = async (
   req: Request,
-  _res: Response
+  res: Response
 ): Promise<any> => {
   const { username } = req.body; // Extract username from request body
 
@@ -81,6 +81,7 @@ export const fetchUserWallet = async (
   
     const data = await response.json();
     console.log("fetchUserWallet response", data);
+    res.status(200).json(data);
     return data;
 
    // Send the request with the username in the request body
