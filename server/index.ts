@@ -65,29 +65,29 @@ export const fetchUserWallet = async (
 
   console.log("fetchUserWallet request", username);
 
+  const url = "https://api.espees.org/user/address";
+
+  const options = {
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+    },
+    body: {
+      username: username,
+    },
+  };
   try {
-    const response = await fetch("https://api.espees.org/user/address", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-      },
-      body: JSON.stringify({username: username}),
-    });
-
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch wallet for user ${username}`);
+      const response = await axios.post(url, options.body, {
+        headers: options.headers,
+      });
+      const data = response.data;
+      res.status(200).json(response.data);
+      return data;
+    } catch (err) {
+      console.error("Error:", err);
+      res.status(500).json({ msg: `Internal Server Error.` });
     }
-  
-    const data = await response.json();
-    console.log("fetchUserWallet response", data);
-    return res.status(200).json(data);
-  } catch (error) {
-    return res.status(500).json({ msg: `Internal Server Error.` });
-  }
 };
-
 router.post(`/fetchUserWallet`, fetchUserWallet);
 
 router.post(`/handleVendEspees`, async function (req: Request, res: Response) {

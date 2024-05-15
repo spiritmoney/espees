@@ -8,61 +8,90 @@ interface ApiResponse {
   message: string;
 }
 
-const YourComponent = () => {
+// const API_KEY = "V9yKoxl5EljDbawloXWHaD2zgclp28U9f5YSY3U3";
+
+const page = () => {
   const [username, setUsername] = useState<string>("");
-  const [vendingAmount, setVendingAmount] = useState<number>(0); // Set initial value to 0
+  const [vendingAmount, setVendingAmount] = useState<string>(""); // Set initial value to 0
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [vendingToken, setVendingToken] = useState<string>("");
-  const [userWalletAddress, setUserWalletAddress] = useState<string>("");
+  // const [vendingToken, setVendingToken] = useState<string>("");
+  // const [userWalletAddress, setUserWalletAddress] = useState<string>("");
 
   const fetchVendingToken = async () => {
     try {
-      const response = await axios.post("https://espees.onrender.com/fetchVendingToken");
-      const data = response.data;
-      setVendingToken(data.vending_token);
+      const response = await fetch(
+        "https://espees.onrender.com/fetchVendingToken",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      console.log(data.vending_token);
       return data.vending_token;
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
   const fetchUserWallet = async () => {
-
     try {
       console.log("running");
-
-      const response = await axios.post("https://espees.onrender.com/fetchUserWallet", {
-        username: username,
-      });
-      console.log(response);
-      const data = response.data;
-      setUserWalletAddress(data.wallet_id);
+      const response = await fetch(
+        "https://espees.onrender.com/fetchUserWallet",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: username }),
+        }
+      );
+      const data = await response.json();
+      console.log(data.wallet_id);
+      return data.wallet_id;
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
+  
 
   const handleVendEspees = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
 
-    console.log(vendingToken, userWalletAddress);
-    
+    const vendingToken = await fetchVendingToken();
+    const userWalletAddress = await fetchUserWallet();
+
+    console.log(
+      `Vending Token: ${vendingToken}, User Wallet Address: ${userWalletAddress}`
+    );
 
     try {
-      const response = await axios.post("https://espees.onrender.com/handleVendEspees", {
-        vendingToken: vendingToken,
-        userWalletAddress: userWalletAddress,
-        vendingAmount,
-      });
-      console.log("Response:", response.data); // Log the response data
-      setApiResponse(response.data);
+      const response = await fetch(
+        "https://espees.onrender.com/handleVendEspees",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json", 
+          },
+          body: JSON.stringify({
+            vendingToken: vendingToken,
+            userWalletAddress: userWalletAddress,
+            vendingAmount: vendingAmount,
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log("Response:", data); // Log the response data
+      setApiResponse(data);
     } catch (error) {
       console.error("Error vending Espees:", error);
       setApiResponse(null);
-    }
-     finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -91,7 +120,7 @@ const YourComponent = () => {
                 type="number"
                 placeholder="Enter amount in Espees"
                 value={vendingAmount}
-                onChange={(e) => setVendingAmount(e.target.valueAsNumber)}
+                onChange={(e) => setVendingAmount(e.target.value)}
                 className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md"
               />
             </div>
@@ -119,4 +148,4 @@ const YourComponent = () => {
     </main>
   );
 };
-export default YourComponent;
+export default page;
