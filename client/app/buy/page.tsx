@@ -2,6 +2,7 @@
 import React, { FormEvent, useState } from "react";
 import axios from "axios";
 import Footer from "../components/Footer";
+import Header from "../components/Header";
 
 interface ApiResponse {
   statusCode: number;
@@ -98,9 +99,10 @@ const page = () => {
 
   return (
     <main className=" overflow-x-hidden h-screen">
-      <div className=" bg-purple-200 w-screen h-full flex justify-center items-center">
+      <Header />
+      <div className=" bg-gradient-to-r from-blue-500 to-indigo-500 w-screen h-screen flex justify-center items-center shadow-2xl">
         <form onSubmit={handleVendEspees}>
-          <div className="flex-col border p-10 rounded-lg bg-white">
+          <div className="flex-col border p-10 rounded-lg bg-white border-gray-300">
             {/* Input for username */}
             <div className="py-5 text-black">
               <p>Espees Account to fund</p>
@@ -109,7 +111,7 @@ const page = () => {
                 placeholder="Espees wallet Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md"
+                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md "
               />
             </div>
 
@@ -127,7 +129,7 @@ const page = () => {
 
             {/* Button to trigger vending */}
             <button
-              className="border-2 border-white px-8 py-2 rounded-lg text-[16px] font-medium bg-indigo-800 text-white"
+              className="border-2 border-white px-8 py-2 rounded-lg text-[16px] font-medium bg-blue-600 text-white"
               type="submit"
               disabled={isLoading}
             >
@@ -144,7 +146,6 @@ const page = () => {
           </div>
         </form>
       </div>
-      <Footer />
     </main>
   );
 };
