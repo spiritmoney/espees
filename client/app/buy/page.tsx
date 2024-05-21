@@ -1,7 +1,5 @@
 "use client";
 import React, { FormEvent, useState } from "react";
-import axios from "axios";
-import Footer from "../components/Footer";
 import Header from "../components/Header";
 
 interface ApiResponse {
@@ -10,12 +8,15 @@ interface ApiResponse {
 }
 
 // const API_KEY = "V9yKoxl5EljDbawloXWHaD2zgclp28U9f5YSY3U3";
+// const admin: string = "0x0bd3e40f8410ea473850db5479348f074d254ded";
+// const adminpwd: string = "1234";
 
 const page = () => {
   const [username, setUsername] = useState<string>("");
   const [vendingAmount, setVendingAmount] = useState<string>(""); // Set initial value to 0
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [currency, setCurrency] = useState<string>("USD"); // ["espees", "usd"]
   // const [vendingToken, setVendingToken] = useState<string>("");
   // const [userWalletAddress, setUserWalletAddress] = useState<string>("");
 
@@ -58,7 +59,41 @@ const page = () => {
       console.error(err);
     }
   };
-  
+
+  const handlePaymentInitialization = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    setIsLoading(true);
+
+    const userWalletAddress = await fetchUserWallet();
+
+    try {
+      const response = await fetch("http://localhost:18012/initiatePayment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          CURRENCY: currency,
+          wallet: userWalletAddress,
+          amount: vendingAmount,
+        }),
+      });
+      const data = await response.json();
+      console.log("Response:", data); // Log the response data
+      setApiResponse(data);
+      // Check if the result is true and redirect
+      if (data.result) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Error initializing payment:", error);
+      setApiResponse(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleVendEspees = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -77,7 +112,7 @@ const page = () => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json", 
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             vendingToken: vendingToken,
@@ -101,7 +136,7 @@ const page = () => {
     <main className=" overflow-x-hidden h-screen">
       <Header />
       <div className=" bg-gradient-to-r from-blue-500 to-indigo-500 w-screen h-screen flex justify-center items-center shadow-2xl">
-        <form onSubmit={handleVendEspees}>
+        <form onSubmit={handlePaymentInitialization}>
           <div className="flex-col border p-10 rounded-lg bg-white border-gray-300">
             {/* Input for username */}
             <div className="py-5 text-black">
@@ -125,6 +160,20 @@ const page = () => {
                 onChange={(e) => setVendingAmount(e.target.value)}
                 className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md"
               />
+            </div>
+            {/* Input for amount to initialize payment */}
+            <div className="py-5 text-black">
+              <p>Currency (USD, NGN, EUR)</p>
+              <select
+                name="Currency"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md"
+              >
+                <option value="USD">USD</option>
+                <option value="NGN">NGN</option>
+                <option value="EUR">EUR</option>
+              </select>
             </div>
 
             {/* Button to trigger vending */}
