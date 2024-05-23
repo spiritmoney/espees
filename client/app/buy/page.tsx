@@ -7,13 +7,13 @@ interface ApiResponse {
   message: string;
 }
 
-const convertEspeesToCurrency = (espees: number, currency: string) => {
+const convertEspeesToCurrency = (espees: string, currency: string) => {
   switch (currency) {
     case "USD":
     case "EUR":
       return espees; // 1 Espees = 1 USD/EUR
     case "NGN":
-      return espees * 1500; // 1 Espees = 1500 NGN
+      return parseInt(espees) * 1500; // 1 Espees = 1500 NGN
     default:
       return espees; // Default to Espees if no match
   }
@@ -95,7 +95,7 @@ const page = () => {
 
     const userWalletAddress = await fetchUserWallet();
 
-    const convertedAmount = convertEspeesToCurrency(Number(vendingAmount), currency).toString();
+    const convertedAmount = convertEspeesToCurrency(vendingAmount, currency);
 
     try {
       const response = await fetch("https://espees.onrender.com/initiatePayment", {
