@@ -7,18 +7,24 @@ interface ApiResponse {
   message: string;
 }
 
-// const API_KEY = "V9yKoxl5EljDbawloXWHaD2zgclp28U9f5YSY3U3";
-// const admin: string = "0x0bd3e40f8410ea473850db5479348f074d254ded";
-// const adminpwd: string = "1234";
+const convertEspeesToCurrency = (espees: number, currency: string) => {
+  switch (currency) {
+    case "USD":
+    case "EUR":
+      return espees; // 1 Espees = 1 USD/EUR
+    case "NGN":
+      return espees * 1500; // 1 Espees = 1500 NGN
+    default:
+      return espees; // Default to Espees if no match
+  }
+};
 
 const page = () => {
   const [username, setUsername] = useState<string>("");
   const [vendingAmount, setVendingAmount] = useState<string>(""); // Set initial value to 0
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [currency, setCurrency] = useState<string>("USD"); // ["espees", "usd"]
-  // const [vendingToken, setVendingToken] = useState<string>("");
-  // const [userWalletAddress, setUserWalletAddress] = useState<string>("");
+  const [currency, setCurrency] = useState<string>("USD");
 
   const fetchVendingToken = async () => {
     try {
@@ -42,21 +48,40 @@ const page = () => {
   const fetchUserWallet = async () => {
     try {
       console.log("running");
-      const response = await fetch(
-        "https://espees.onrender.com/fetchUserWallet",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username: username }),
-        }
-      );
+      const response = await fetch("https://espees.onrender.com/fetchUserWallet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: username }),
+      });
       const data = await response.json();
       console.log(data.wallet_id);
       return data.wallet_id;
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const checkBalanceAndInitiatePayment = async () => {
+    try {
+      console.log("Checking balance and initiating payment");
+      
+      const response = await fetch(
+        "https://espees.onrender.com/balanceCheck",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to initiate payment with balance check");
+      }
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
@@ -66,26 +91,38 @@ const page = () => {
     event.preventDefault();
     setIsLoading(true);
 
+    await checkBalanceAndInitiatePayment();
+
     const userWalletAddress = await fetchUserWallet();
 
+    const convertedAmount = convertEspeesToCurrency(Number(vendingAmount), currency)
+
     try {
-      const response = await fetch("http://localhost:18012/initiatePayment", {
+      const response = await fetch("https://espees.onrender.com/initiatePayment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          CURRENCY: currency,
+          currency: currency,
           wallet: userWalletAddress,
-          amount: vendingAmount,
+          amount: convertedAmount,
         }),
       });
       const data = await response.json();
       console.log("Response:", data); // Log the response data
       setApiResponse(data);
       // Check if the result is true and redirect
-      if (data.result) {
+      if ((data.result && currency === "USD") || currency === "EUR") {
         window.location.href = data.url;
+      } else if (data.result && currency === "NGN") {
+        window.location.href = `http://localhost:3000/buy/ngn?instruction=${encodeURIComponent(
+          data.instruction
+        )}&bankname=${data.bankname}&accountnumber=${
+          data.accountnumber
+        }&accountname=${encodeURIComponent(data.accountname)}&amount=${
+          data.amount
+        }&result=${data.result}`;
       }
     } catch (error) {
       console.error("Error initializing payment:", error);
@@ -102,6 +139,11 @@ const page = () => {
     const vendingToken = await fetchVendingToken();
     const userWalletAddress = await fetchUserWallet();
 
+    const convertedAmount = convertEspeesToCurrency(
+      Number(vendingAmount),
+      currency
+    );
+
     console.log(
       `Vending Token: ${vendingToken}, User Wallet Address: ${userWalletAddress}`
     );
@@ -117,7 +159,7 @@ const page = () => {
           body: JSON.stringify({
             vendingToken: vendingToken,
             userWalletAddress: userWalletAddress,
-            vendingAmount: vendingAmount,
+            vendingAmount: convertedAmount,
           }),
         }
       );
@@ -134,7 +176,6 @@ const page = () => {
 
   return (
     <main className=" overflow-x-hidden h-screen">
-      <Header />
       <div className=" bg-gradient-to-r from-blue-500 to-indigo-500 w-screen h-screen flex justify-center items-center shadow-2xl">
         <form onSubmit={handlePaymentInitialization}>
           <div className="flex-col border p-10 rounded-lg bg-white border-gray-300">

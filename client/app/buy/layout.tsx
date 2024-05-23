@@ -1,4 +1,5 @@
 import Footer from "../components/Footer";
+import Header from "../components/Header";
 
 export default function DashboardLayout({
   children, // will be a page or nested layout
@@ -7,8 +8,9 @@ export default function DashboardLayout({
 }) {
   return (
     <section>
+      <Header />
       {children}
-    <Footer />
+      <Footer />
     </section>
   );
 }
