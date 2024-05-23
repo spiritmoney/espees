@@ -48,13 +48,16 @@ const page = () => {
   const fetchUserWallet = async () => {
     try {
       console.log("running");
-      const response = await fetch("https://espees.onrender.com/fetchUserWallet", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: username }),
-      });
+      const response = await fetch(
+        "https://espees.onrender.com/fetchUserWallet",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: username }),
+        }
+      );
       const data = await response.json();
       console.log(data.wallet_id);
       return data.wallet_id;
@@ -66,16 +69,13 @@ const page = () => {
   const checkBalanceAndInitiatePayment = async () => {
     try {
       console.log("Checking balance and initiating payment");
-      
-      const response = await fetch(
-        "https://espees.onrender.com/balanceCheck",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+
+      const response = await fetch("https://espees.onrender.com/balanceCheck", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to initiate payment with balance check");
@@ -98,17 +98,20 @@ const page = () => {
     const convertedAmount = convertEspeesToCurrency(vendingAmount, currency);
 
     try {
-      const response = await fetch("https://espees.onrender.com/initiatePayment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          currency: currency,
-          wallet: userWalletAddress,
-          amount: convertedAmount,
-        }),
-      });
+      const response = await fetch(
+        "https://espees.onrender.com/initiatePayment",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            currency: currency,
+            wallet: userWalletAddress,
+            amount: convertedAmount,
+          }),
+        }
+      );
       const data = await response.json();
       console.log("Response:", data); // Log the response data
       setApiResponse(data);
@@ -139,10 +142,7 @@ const page = () => {
     const vendingToken = await fetchVendingToken();
     const userWalletAddress = await fetchUserWallet();
 
-    const convertedAmount = convertEspeesToCurrency(
-      Number(vendingAmount),
-      currency
-    );
+    const convertedAmount = convertEspeesToCurrency(vendingAmount, currency);
 
     console.log(
       `Vending Token: ${vendingToken}, User Wallet Address: ${userWalletAddress}`
