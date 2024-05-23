@@ -95,7 +95,7 @@ const page = () => {
 
     const userWalletAddress = await fetchUserWallet();
 
-    const convertedAmount: any = convertEspeesToCurrency(vendingAmount, currency);
+    const convertedAmount = convertEspeesToCurrency(vendingAmount, currency).toString();
 
     try {
       const response = await fetch(
@@ -119,7 +119,7 @@ const page = () => {
       if ((data.result && currency === "USD") || currency === "EUR") {
         window.location.href = data.url;
       } else if (data.result && currency === "NGN") {
-        window.location.href = `https://espees.onrender.com/buy/ngn?instruction=${encodeURIComponent(
+        window.location.href = `https://espees.vercel.app/buy/ngn?instruction=${encodeURIComponent(
           data.instruction
         )}&bankname=${data.bankname}&accountnumber=${
           data.accountnumber
@@ -142,7 +142,7 @@ const page = () => {
     const vendingToken = await fetchVendingToken();
     const userWalletAddress = await fetchUserWallet();
 
-    const convertedAmount = convertEspeesToCurrency(vendingAmount, currency);
+    const convertedAmount = convertEspeesToCurrency(vendingAmount, currency).toString();
 
     console.log(
       `Vending Token: ${vendingToken}, User Wallet Address: ${userWalletAddress}`
@@ -225,14 +225,6 @@ const page = () => {
             >
               {isLoading ? "Loading..." : "Buy"}
             </button>
-
-            {/* Display API response */}
-            {apiResponse && (
-              <div>
-                <p>Status Code: {apiResponse.statusCode}</p>
-                <p>Message: {apiResponse.message}</p>
-              </div>
-            )}
           </div>
         </form>
       </div>
