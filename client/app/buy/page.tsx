@@ -95,7 +95,7 @@ const page = () => {
 
     const userWalletAddress = await fetchUserWallet();
 
-    const convertedAmount = convertEspeesToCurrency(vendingAmount, currency);
+    const convertedAmount: any = convertEspeesToCurrency(vendingAmount, currency);
 
     try {
       const response = await fetch(
