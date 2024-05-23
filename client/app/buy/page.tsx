@@ -116,7 +116,7 @@ const page = () => {
       if ((data.result && currency === "USD") || currency === "EUR") {
         window.location.href = data.url;
       } else if (data.result && currency === "NGN") {
-        window.location.href = `http://localhost:3000/buy/ngn?instruction=${encodeURIComponent(
+        window.location.href = `https://espees.onrender.com/buy/ngn?instruction=${encodeURIComponent(
           data.instruction
         )}&bankname=${data.bankname}&accountnumber=${
           data.accountnumber
