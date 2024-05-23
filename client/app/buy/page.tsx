@@ -95,7 +95,7 @@ const page = () => {
 
     const userWalletAddress = await fetchUserWallet();
 
-    const convertedAmount = convertEspeesToCurrency(Number(vendingAmount), currency)
+    const convertedAmount = convertEspeesToCurrency(Number(vendingAmount), currency).toString();
 
     try {
       const response = await fetch("https://espees.onrender.com/initiatePayment", {
