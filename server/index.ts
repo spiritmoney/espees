@@ -98,6 +98,7 @@ export const fetchUserWallet = async (
   }
 };
 router.post(`/fetchUserWallet`, fetchUserWallet);
+
 router.post(`/handleVendEspees`, async function (req: Request, res: Response) {
   console.log("Received request:", req.body);
 
@@ -182,11 +183,10 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
   console.log("Received payment initialization request:", req.body);
 
   const {
-    CURRENCY,
+    currency,
     wallet,
     amount,
-  }: { CURRENCY: string; wallet: string; amount: string } =
-    req.body;
+  }: { currency: string; wallet: string; amount: string } = req.body;
 
   const url = "https://restapi.connectw.com/api/payment";
 
@@ -202,7 +202,7 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
       params: [
         {
           name: "currency",
-          value: CURRENCY,
+          value: currency,
         },
         {
           name: "address",
@@ -322,39 +322,33 @@ router.post("/recordTransaction", async (req: Request, res: Response) => {
 });
 
 // Route to initiate payment and store initial balance
-router.post(
-  "/initiatePaymentWithBalanceCheck",
-  async (req: Request, res: Response) => {
-    try {
-      // Fetch initial balance
-      const initialResponse = await axios.post(
-        "https://restapi.connectw.com/api/payment",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            admin: merchantAddress,
-            adminpwd: merchantpwd,
-          },
-          body: JSON.stringify({
-            op: "getproject",
-            params: [{ name: "getbalances", value: "true" }],
-          }),
-        }
-      );
+router.post("/balanceCheck", async (req: Request, res: Response) => {
+  try {
+    const response = await fetch("https://restapi.connectw.com/api/payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        admin: merchantAddress,
+        adminpwd: merchantpwd,
+      },
+      body: JSON.stringify({
+        op: "getproject",
+        params: [{ name: "getbalances", value: "true" }],
+      }),
+    });
 
-      const initialBalance = initialResponse.data.balances.bal_naira;
+    const data = await response.json();
+    const initialBalance = data.balances.bal_naira;
 
-      // Store initial balance in session or other temporary storage
-      req.session.initialBalance = initialBalance;
+    req.session.initialBalance = initialBalance;
 
-      // Proceed to initiate payment
-      // (Existing initiatepayment logic here)
-    } catch (error) {
-      console.error("Error:", error);
-      res.status(500).json({ msg: "Internal Server Error." });
-    }
+    // Send a success response
+    res.status(200).json({ msg: "Balance stored successfully." });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ msg: "Internal Server Error." });
   }
-);
+});
 
 // Route to check balance after payment
 router.post("/checkBalanceAndRedirect", async (req: Request, res: Response) => {

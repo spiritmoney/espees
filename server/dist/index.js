@@ -153,7 +153,7 @@ router.post("/registerProduct", async (req, res) => {
 });
 router.post("/initiatepayment", async (req, res) => {
     console.log("Received payment initialization request:", req.body);
-    const { CURRENCY, wallet, amount, } = req.body;
+    const { currency, wallet, amount, } = req.body;
     const url = "https://restapi.connectw.com/api/payment";
     const options = {
         method: "POST",
@@ -167,7 +167,7 @@ router.post("/initiatepayment", async (req, res) => {
             params: [
                 {
                     name: "currency",
-                    value: CURRENCY,
+                    value: currency,
                 },
                 {
                     name: "address",
@@ -273,9 +273,10 @@ router.post("/recordTransaction", async (req, res) => {
         res.status(500).json({ msg: "Internal Server Error." });
     }
 });
-router.post("/initiatePaymentWithBalanceCheck", async (req, res) => {
+router.post("/balanceCheck", async (req, res) => {
     try {
-        const initialResponse = await axios_1.default.post("https://restapi.connectw.com/api/payment", {
+        const response = await fetch("https://restapi.connectw.com/api/payment", {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 admin: merchantAddress,
@@ -286,8 +287,10 @@ router.post("/initiatePaymentWithBalanceCheck", async (req, res) => {
                 params: [{ name: "getbalances", value: "true" }],
             }),
         });
-        const initialBalance = initialResponse.data.balances.bal_naira;
+        const data = await response.json();
+        const initialBalance = data.balances.bal_naira;
         req.session.initialBalance = initialBalance;
+        res.status(200).json({ msg: "Balance stored successfully." });
     }
     catch (error) {
         console.error("Error:", error);
