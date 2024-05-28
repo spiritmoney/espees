@@ -1,6 +1,5 @@
 "use client";
 import React, { FormEvent, useState } from "react";
-import Header from "../components/Header";
 
 interface ApiResponse {
   statusCode: number;
@@ -66,32 +65,11 @@ const page = () => {
     }
   };
 
-  const checkBalanceAndInitiatePayment = async () => {
-    try {
-      console.log("Checking balance and initiating payment");
-
-      const response = await fetch("https://espees.onrender.com/balanceCheck", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to initiate payment with balance check");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   const handlePaymentInitialization = async (
     event: FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
     setIsLoading(true);
-
-    await checkBalanceAndInitiatePayment();
 
     const userWalletAddress = await fetchUserWallet();
 

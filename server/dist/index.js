@@ -273,60 +273,6 @@ router.post("/recordTransaction", async (req, res) => {
         res.status(500).json({ msg: "Internal Server Error." });
     }
 });
-router.post("/balanceCheck", async (req, res) => {
-    try {
-        const response = await fetch("https://restapi.connectw.com/api/payment", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                admin: merchantAddress,
-                adminpwd: merchantpwd,
-            },
-            body: JSON.stringify({
-                op: "getproject",
-                params: [{ name: "getbalances", value: "true" }],
-            }),
-        });
-        const data = await response.json();
-        const initialBalance = data.balances.bal_naira;
-        req.session.initialBalance = initialBalance;
-        res.status(200).json({ msg: "Balance stored successfully." });
-    }
-    catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ msg: "Internal Server Error." });
-    }
-});
-router.post("/checkBalanceAndRedirect", async (req, res) => {
-    var _a;
-    try {
-        const { paymentAmount } = req.body;
-        const initialBalance = (_a = req.session.initialBalance) !== null && _a !== void 0 ? _a : "";
-        const newResponse = await axios_1.default.post("https://restapi.connectw.com/api/payment", {
-            headers: {
-                "Content-Type": "application/json",
-                admin: merchantAddress,
-                adminpwd: merchantpwd,
-            },
-            body: JSON.stringify({
-                op: "getproject",
-                params: [{ name: "getbalances", value: "true" }],
-            }),
-        });
-        const newBalance = newResponse.data.balances.bal_naira;
-        if (parseInt(newBalance) ===
-            parseInt(initialBalance) + parseInt(paymentAmount || "0")) {
-            res.redirect("/success");
-        }
-        else {
-            res.redirect("/error");
-        }
-    }
-    catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ msg: "Internal Server Error." });
-    }
-});
 app.use(express_1.default.json());
 app.use(router);
 app.listen(port, () => {
