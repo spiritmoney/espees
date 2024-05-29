@@ -186,7 +186,8 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
     currency,
     wallet,
     amount,
-  }: { currency: string; wallet: string; amount: string } = req.body;
+    username
+  }: { currency: string; wallet: string; amount: string; username: string; } = req.body;
 
   const url = "https://restapi.connectw.com/api/payment";
 
@@ -232,6 +233,14 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
           name: "exchange",
           value: "0",
         },
+        {
+          name: "payername",
+          value: username
+        },
+        {
+          name: "token",
+          value: "110"
+        }
       ],
     }),
   };

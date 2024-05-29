@@ -21,7 +21,6 @@ const convertEspeesToCurrency = (espees: string, currency: string) => {
 const page = () => {
   const [username, setUsername] = useState<string>("");
   const [vendingAmount, setVendingAmount] = useState<string>(""); // Set initial value to 0
-  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currency, setCurrency] = useState<string>("USD");
 
@@ -87,12 +86,12 @@ const page = () => {
             currency: currency,
             wallet: userWalletAddress,
             amount: convertedAmount,
+            username: username
           }),
         }
       );
       const data = await response.json();
       console.log("Response:", data); // Log the response data
-      setApiResponse(data);
       // Check if the result is true and redirect
       if ((data.result && currency === "USD") || currency === "EUR") {
         window.location.href = data.url;
@@ -107,7 +106,6 @@ const page = () => {
       }
     } catch (error) {
       console.error("Error initializing payment:", error);
-      setApiResponse(null);
     } finally {
       setIsLoading(false);
     }
@@ -143,10 +141,8 @@ const page = () => {
       );
       const data = await response.json();
       console.log("Response:", data); // Log the response data
-      setApiResponse(data);
     } catch (error) {
       console.error("Error vending Espees:", error);
-      setApiResponse(null);
     } finally {
       setIsLoading(false);
     }
