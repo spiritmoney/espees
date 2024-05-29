@@ -11,15 +11,10 @@ const Hero = () => {
             <p className="text-[64px] font-bold text-wrap leading-normal">
               Respelling <br /> Your <br /> Finances
             </p>
-            <div className="flex justify-start items-start xl:right-0 relative right-1 space-x-5 mt-4">
+            <div className="mt-4">
               <Link href="/buy">
                 <button className="border-2 border-white px-8 py-2 rounded-lg text-[22px] font-medium text-white hover:bg-white hover:text-blue-600 active:bg-white active:text-indigo-800">
                   Buy
-                </button>
-              </Link>
-              <Link href="/sell">
-                <button className="border-2 border-white px-8 py-2 rounded-lg text-[22px] font-medium text-white hover:bg-white hover:text-blue-600 active:bg-white active:text-indigo-800">
-                  Sell
                 </button>
               </Link>
             </div>
