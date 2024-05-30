@@ -26,15 +26,12 @@ const page = () => {
 
   const fetchVendingToken = async () => {
     try {
-      const response = await fetch(
-        "https://espees.onrender.com/fetchVendingToken",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch("http://localhost:18012/fetchVendingToken", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       const data = await response.json();
       console.log(data.vending_token);
       return data.vending_token;
@@ -46,16 +43,13 @@ const page = () => {
   const fetchUserWallet = async () => {
     try {
       console.log("running");
-      const response = await fetch(
-        "https://espees.onrender.com/fetchUserWallet",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username: username }),
-        }
-      );
+      const response = await fetch("http://localhost:18012/fetchUserWallet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: username }),
+      });
       const data = await response.json();
       console.log(data.wallet_id);
       return data.wallet_id;
@@ -75,21 +69,18 @@ const page = () => {
     const convertedAmount = convertEspeesToCurrency(vendingAmount, currency).toString();
 
     try {
-      const response = await fetch(
-        "https://espees.onrender.com/initiatePayment",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            currency: currency,
-            wallet: userWalletAddress,
-            amount: convertedAmount,
-            username: username
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:18012/initiatePayment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currency: currency,
+          wallet: userWalletAddress,
+          amount: convertedAmount,
+          username: username,
+        }),
+      });
       const data = await response.json();
       console.log("Response:", data); // Log the response data
       // Check if the result is true and redirect
@@ -125,20 +116,17 @@ const page = () => {
     );
 
     try {
-      const response = await fetch(
-        "https://espees.onrender.com/handleVendEspees",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            vendingToken: vendingToken,
-            userWalletAddress: userWalletAddress,
-            vendingAmount: convertedAmount,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:18012/handleVendEspees", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vendingToken: vendingToken,
+          userWalletAddress: userWalletAddress,
+          vendingAmount: vendingAmount,
+        }),
+      });
       const data = await response.json();
       console.log("Response:", data); // Log the response data
     } catch (error) {

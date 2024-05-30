@@ -8,6 +8,7 @@ const Page = ({}) => {
   const [accountnumber, setAccountnumber] = useState("");
   const [accountname, setAccountname] = useState("");
   const [amount, setAmount] = useState("");
+  const [vendingAmount, setVendingAmount] = useState<string>("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -19,7 +20,7 @@ const Page = ({}) => {
   }, []);
 
   const handleClick = async () => {
-    const url = "https://espees.onrender.com/recordTransaction";
+    const url = "http://localhost:18012/recordTransaction";
     const options = {
       method: "POST",
       headers: {

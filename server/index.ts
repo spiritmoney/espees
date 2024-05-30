@@ -19,12 +19,6 @@ const agentPin: string = "1234";
 const merchantAddress: string = "0x0bd3e40f8410ea473850db5479348f074d254ded";
 const merchantpwd: string = "1234";
 
-declare module "express-session" {
-  interface SessionData {
-    initialBalance: string;
-  }
-}
-
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const generateVendingHash = (): string => {
@@ -239,7 +233,7 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
         },
         {
           name: "token",
-          value: "110"
+          value: "111"
         }
       ],
     }),
