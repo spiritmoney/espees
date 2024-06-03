@@ -43,7 +43,7 @@ const Page = ({}) => {
 
   return (
     <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-screen grid place-items-center">
-      <div className="grid place-items-center text-black w-auto h-auto py-10 px-32 mx-20 border rounded-xl border-gray-500 bg-white">
+      <div className="grid place-items-center text-black w-full sm:w-auto h-auto py-10 px-4 sm:px-32 mx-4 max-sm:mx-20 border rounded-xl border-gray-500 bg-white">
         <div className="text-center">
           <h1 className="font-bold text-[32px]">Payment Instructions</h1>
           <p className="text-lg">{instruction}</p>

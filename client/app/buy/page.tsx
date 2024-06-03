@@ -66,7 +66,10 @@ const page = () => {
 
     const userWalletAddress = await fetchUserWallet();
 
-    const convertedAmount = convertEspeesToCurrency(vendingAmount, currency).toString();
+    const convertedAmount = convertEspeesToCurrency(
+      vendingAmount,
+      currency
+    ).toString();
 
     try {
       const response = await fetch("http://localhost:18012/initiatePayment", {
@@ -109,7 +112,10 @@ const page = () => {
     const vendingToken = await fetchVendingToken();
     const userWalletAddress = await fetchUserWallet();
 
-    const convertedAmount = convertEspeesToCurrency(vendingAmount, currency).toString();
+    const convertedAmount = convertEspeesToCurrency(
+      vendingAmount,
+      currency
+    ).toString();
 
     console.log(
       `Vending Token: ${vendingToken}, User Wallet Address: ${userWalletAddress}`
@@ -137,41 +143,44 @@ const page = () => {
   };
 
   return (
-    <main className=" overflow-x-hidden h-screen">
-      <div className=" bg-gradient-to-r from-blue-500 to-indigo-500 w-screen h-screen flex justify-center items-center shadow-2xl">
-        <form onSubmit={handlePaymentInitialization}>
-          <div className="flex-col border p-10 rounded-lg bg-white border-gray-300">
+    <main className="overflow-x-hidden h-screen">
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-500 w-screen h-screen flex justify-center items-center shadow-2xl">
+        <form
+          onSubmit={handlePaymentInitialization}
+          className="w-full max-w-md mx-10"
+        >
+          <div className="flex-col border p-4 rounded-lg bg-white border-gray-300">
             {/* Input for username */}
-            <div className="py-5 text-black">
+            <div className="py-2 sm:py-5 text-black">
               <p>Espees Account to fund</p>
               <input
                 type="text"
                 placeholder="Espees wallet Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md "
+                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md w-full"
               />
             </div>
 
             {/* Input for amount to vend */}
-            <div className="py-5 text-black">
+            <div className="py-2 sm:py-5 text-black">
               <p>Amount you want to Buy (Espees)</p>
               <input
                 type="number"
                 placeholder="Enter amount in Espees"
                 value={vendingAmount}
                 onChange={(e) => setVendingAmount(e.target.value)}
-                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md"
+                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md w-full"
               />
             </div>
             {/* Input for amount to initialize payment */}
-            <div className="py-5 text-black">
+            <div className="py-2 sm:py-5 text-black">
               <p>Currency (USD, NGN, EUR)</p>
               <select
                 name="Currency"
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md"
+                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md w-full"
               >
                 <option value="USD">USD</option>
                 <option value="NGN">NGN</option>
@@ -181,7 +190,7 @@ const page = () => {
 
             {/* Button to trigger vending */}
             <button
-              className="border-2 border-white px-8 py-2 rounded-lg text-[16px] font-medium bg-blue-600 text-white"
+              className="border-2 border-white px-8 py-2 rounded-lg text-[16px] font-medium bg-blue-600 text-white w-full"
               type="submit"
               disabled={isLoading}
             >

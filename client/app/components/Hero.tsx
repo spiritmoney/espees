@@ -6,9 +6,9 @@ const Hero = () => {
   return (
     <section className="bg-gradient-to-r from-blue-500 to-indigo-500 p-20 mix-blend-normal overflow-y-hidden mt-10">
       <div className="flex-col justify-center items-start">
-        <div className="flex justify-center items-center">
-          <div className="px-1 w-[550px] text-white">
-            <p className="text-[64px] font-bold text-wrap leading-normal">
+        <div className="flex justify-center items-center max-sm:flex-col">
+          <div className="px-1 sm:w-[550px] text-white grid place-items-center">
+            <p className="text-[64px] font-bold text-wrap leading-normal max-sm:text-[50px]">
               Respelling <br /> Your <br /> Finances
             </p>
             <div className="mt-4">
