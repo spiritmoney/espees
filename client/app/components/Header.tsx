@@ -10,7 +10,7 @@ const CloseIcon = () => (
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
-    className="h-6 w-6 text-white"
+    className="h-10 w-10 text-white"
   >
     <path
       strokeLinecap="round"
@@ -27,7 +27,7 @@ const MenuIcon = () => (
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
-    className="h-6 w-6 text-white"
+    className="h-10 w-10 text-white"
   >
     <path
       strokeLinecap="round"
@@ -53,7 +53,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) 
   <div
     className={`fixed top-0 right-0 w-64 h-full bg-blue-500 transform transition-transform ease-in-out duration-200 ${
       isOpen ? "translate-x-0" : "translate-x-full"
-    } sm:static sm:translate-x-0 sm:bg-transparent sm:h-auto sm:flex sm:space-x-10 px-5 font-semibold text-lg sm:text-2xl`}
+    } sm:static sm:translate-x-0 sm:bg-transparent sm:h-auto sm:flex sm:space-x-10 py-10 px-5 font-semibold text-lg sm:text-2xl`}
   >
     <button onClick={onClose} className="absolute top-0 right-0 m-2 sm:hidden">
       <CloseIcon />
