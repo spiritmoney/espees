@@ -49,16 +49,22 @@ const NavLink = ({ href, children }: NavLinkProps) => (
   </li>
 );
 
-const Sidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => (
+const Sidebar = ({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) => (
   <div
-    className={`fixed top-0 right-0 w-64 h-full bg-blue-500 transform transition-transform ease-in-out duration-200 ${
+    className={`fixed top-0 right-0 max-sm:w-64 h-full max-sm:bg-gradient-to-l from-blue-600 to-indigo-500 transform transition-transform ease-in-out duration-200 ${
       isOpen ? "translate-x-0" : "translate-x-full"
     } sm:static sm:translate-x-0 sm:bg-transparent sm:h-auto sm:flex sm:space-x-10 py-10 px-5 font-semibold text-lg sm:text-2xl`}
   >
     <button onClick={onClose} className="absolute top-0 right-0 m-2 sm:hidden">
       <CloseIcon />
     </button>
-    <ul className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row">
+    <ul className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:space-x-5">
       <NavLink href="/">Home</NavLink>
       <NavLink href="/">About</NavLink>
       <NavLink href="/">Contact</NavLink>
