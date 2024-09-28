@@ -176,7 +176,7 @@ router.post("/registerProduct", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/initiatepayment", async (req: Request, res: Response) => {
+router.post("/initiatepayment", async (req: express.Request, res: express.Response) => {
   console.log("Received payment initialization request:", req.body);
 
   const {
@@ -225,8 +225,6 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
     }),
   };
 
-  console.log("Sending request with options:", JSON.stringify(options, null, 2));
-
   try {
     const response = await fetch(url, options);
     if (!response.ok) {
@@ -234,12 +232,13 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
     }
     const data = await response.json();
     console.log("Response from API:", data);
-    res.status(200).json(data);
+    return res.status(200).json({data, message: "Payment initiated successfully" });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ msg: "Internal Server Error." });
+    console.error("Error initiating payment:", error);
+    return res.status(500).json({ error: "Failed to initiate payment" });
   }
 });
+
 
 router.post("/getProject", async (req: Request, res: Response) => {
   console.log("Received get project request:", req.body);
