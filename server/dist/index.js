@@ -18,7 +18,7 @@ const port = process.env.PORT || 18012;
 const apiKey = "V9yKoxl5EljDbawloXWHaD2zgclp28U9f5YSY3U3";
 const agentWallet = "0x0bd3e40f8410ea473850db5479348f074d254ded";
 const agentPin = "1234";
-const merchantAddress = "0x0bd3e40f8410ea473850db5479348f074d254ded";
+const merchantAddress = "0x6376d76009ba9ed381011134efae927b3f5cbd0f";
 const merchantpwd = "1234";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const generateVendingHash = () => {
@@ -44,6 +44,7 @@ const fetchVendingToken = async (_req, res) => {
             headers: options.headers,
         });
         const data = response.data;
+        console.log("Success response:", data);
         res.status(200).json(response.data);
         return data;
     }
@@ -72,6 +73,7 @@ const fetchUserWallet = async (req, res) => {
             headers: options.headers,
         });
         const data = response.data;
+        console.log("Success response:", data);
         res.status(200).json(response.data);
         return data;
     }
@@ -102,10 +104,11 @@ router.post(`/handleVendEspees`, async function (req, res) {
             throw new Error("Failed to vend Espees");
         }
         const data = await response.json();
-        console.log(data);
+        console.log("Success response:", data);
         return res.status(200).json(data);
     }
     catch (error) {
+        console.error("Error:", error);
         return res.sendStatus(400);
     }
 });
@@ -121,13 +124,14 @@ router.post("/registerProduct", async (req, res) => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "x-api-key": apiKey,
             admin: merchantAddress,
             adminpwd: merchantpwd,
         },
         body: JSON.stringify({
             op: "recordproduct",
             params: [
-                { name: "productid", value: "100" },
+                { name: "productid", value: "001" },
                 { name: "productname", value: "ESPEES" },
                 { name: "description", value: "This is a payment for ESPEES." },
                 {
@@ -153,7 +157,13 @@ router.post("/registerProduct", async (req, res) => {
 });
 router.post("/initiatepayment", async (req, res) => {
     console.log("Received payment initialization request:", req.body);
-    const { currency, wallet, amount, username } = req.body;
+    const { wallet, currency, amount, payername, } = req.body;
+    const merchantAddress = req.query.merchantAddress;
+    const merchantpwd = req.query.merchantpwd;
+    if (!merchantAddress || !merchantpwd) {
+        return res.status(400).json({ msg: "Merchant address and password are required." });
+    }
+    const paymentType = currency === "USD" ? "card" : currency === "NGN" ? "bank" : "default";
     const url = "https://restapi.connectw.com/api/payment";
     const options = {
         method: "POST",
@@ -165,46 +175,19 @@ router.post("/initiatepayment", async (req, res) => {
         body: JSON.stringify({
             op: "paymentinitialize",
             params: [
-                {
-                    name: "currency",
-                    value: currency,
-                },
-                {
-                    name: "address",
-                    value: wallet,
-                },
-                {
-                    name: "amount",
-                    value: amount,
-                },
-                {
-                    name: "success_url",
-                    value: "https://espees.vercel.app/buy/success",
-                },
-                {
-                    name: "cancel_url",
-                    value: "https://espees.vercel.app/buy/cancel",
-                },
-                {
-                    name: "feetype",
-                    value: "0",
-                },
-                {
-                    name: "passthrough",
-                    value: "0",
-                },
-                {
-                    name: "exchange",
-                    value: "0",
-                },
-                {
-                    name: "payername",
-                    value: username
-                },
-                {
-                    name: "token",
-                    value: "111"
-                }
+                { name: "address", value: wallet },
+                { name: "token", value: "101" },
+                { name: "currency", value: currency },
+                { name: "amount", value: amount },
+                { name: "success_url", value: "https://espees.vercel.app/buy/success" },
+                { name: "cancel_url", value: "https://espees.vercel.app/buy/cancel" },
+                { name: "paymenttype", value: paymentType },
+                { name: "passthrough", value: "0" },
+                { name: "commissionrate", value: "0" },
+                { name: "exchange", value: "1" },
+                { name: "payername", value: payername },
+                { name: "payerzipcode", value: "null" },
+                { name: "reusewallet", value: "1" },
             ],
         }),
     };
@@ -281,9 +264,104 @@ router.post("/recordTransaction", async (req, res) => {
         res.status(500).json({ msg: "Internal Server Error." });
     }
 });
+router.post("/createSubMerchant", async (req, res) => {
+    const { merchantAddr, merchantname, description } = req.body;
+    const url = "https://restapi.connectw.com/api/payment";
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            admin: merchantAddress,
+            adminpwd: merchantpwd,
+        },
+        body: JSON.stringify({
+            op: "recordmerchant",
+            params: [
+                { name: "merchantaddress", value: merchantAddr },
+                { name: "merchantname", value: merchantname },
+                { name: "description", value: description },
+                {
+                    name: "merchantimage",
+                    value: "https://lwappstore.com/developers/uploads/espeesCoinOption5.png",
+                },
+                { name: "cancreatevirtualcards", value: "0" },
+                { name: "maxtxn", value: "500" },
+                { name: "mintxn", value: "1" },
+                { name: "minbal", value: "1" },
+            ],
+        }),
+    };
+    try {
+        const response = await axios_1.default.post(url, options.body, { headers: options.headers });
+        console.log("Response from API:", response.data);
+        res.status(200).json(response.data);
+    }
+    catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ msg: "Internal Server Error." });
+    }
+});
+router.post("/updateSubMerchant", async (res) => {
+    const url = "https://restapi.connectw.com/api/payment";
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            admin: merchantAddress,
+            adminpwd: merchantpwd,
+        },
+        body: JSON.stringify({
+            op: "updatemerchant",
+            params: [
+                { name: "merchantaddress", value: "0xc43da1792d94d443dfe6de07563f11c287d828cd" },
+                { name: "merchantname", value: "Test Merchant" },
+                { name: "description", value: "This is a test project for Toros." },
+                { name: "merchantimage", value: "https://toronet.org/explorer/images/toro-logo.png" },
+                { name: "cancreatevirtualcards", value: "0" },
+                { name: "maxtxn", value: "500" },
+                { name: "mintxn", value: "1" },
+                { name: "minbal", value: "1" },
+            ],
+        }),
+    };
+    try {
+        const response = await axios_1.default.post(url, options.body, { headers: options.headers });
+        console.log("Response from API:", response.data);
+        res.status(200).json(response.data);
+    }
+    catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ msg: "Internal Server Error." });
+    }
+});
+router.post("/viewSubMerchant", async (req, res) => {
+    const { merchantAddress } = req.body;
+    const url = "https://restapi.connectw.com/api/payment";
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            admin: merchantAddress,
+            adminpwd: merchantpwd,
+        },
+        body: JSON.stringify({
+            op: "getmerchant",
+            params: [{ name: "merchantaddress", value: merchantAddress }],
+        }),
+    };
+    try {
+        const response = await axios_1.default.post(url, options.body, { headers: options.headers });
+        console.log("Response from API:", response.data);
+        res.status(200).json(response.data);
+    }
+    catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ msg: "Internal Server Error." });
+    }
+});
 app.use(express_1.default.json());
 app.use(router);
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on http://localhost:18012`);
 });
 //# sourceMappingURL=index.js.map

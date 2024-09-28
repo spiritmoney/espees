@@ -10,7 +10,7 @@ export default function DashboardLayout({
     <section>
       <Header />
       {children}
-      <Footer />
+      {/* <Footer /> */}
     </section>
   );
 }

@@ -59,7 +59,7 @@ const Sidebar = ({
   <div
     className={`fixed top-0 right-0 max-sm:w-64 h-full max-sm:bg-gradient-to-l from-blue-600 to-indigo-500 transform transition-transform ease-in-out duration-200 ${
       isOpen ? "translate-x-0" : "translate-x-full"
-    } sm:static sm:translate-x-0 sm:bg-transparent sm:h-auto sm:flex sm:space-x-10 py-10 px-5 font-semibold text-lg sm:text-2xl`}
+    } sm:static sm:translate-x-0 sm:bg-transparent sm:h-auto sm:flex sm:space-x-10 p-5 font-semibold text-lg sm:text-2xl`}
   >
     <button onClick={onClose} className="absolute top-0 right-0 m-2 sm:hidden">
       <CloseIcon />
@@ -80,7 +80,7 @@ const Header = () => {
   const handleSidebarClose = () => setSidebarOpen(false);
 
   return (
-    <section className="py-5 px-4 sm:px-32 bg-gradient-to-r from-blue-500 to-indigo-500 text-white w-full flex justify-between fixed top-0">
+    <section className="py-2 px-4 sm:px-32 bg-white text-black w-full flex justify-around fixed top-0">
       <Link href="/">
         <Image
           src="/espeesCoinOption5.png"
@@ -90,6 +90,7 @@ const Header = () => {
           className="cursor-pointer"
         />
       </Link>
+      <p className="text-3xl font-bold"></p>
       <div className="py-5 sm:hidden">
         <button onClick={handleSidebarToggle}>
           {isSidebarOpen ? <CloseIcon /> : <MenuIcon />}

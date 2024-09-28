@@ -18,11 +18,15 @@ const convertEspeesToCurrency = (espees: string, currency: string) => {
   }
 };
 
+const merchantAddress = "0x49e99dd6ec7b413867513052053161c3682d5506";
+const merchantPassword = "1234";
+
 const page = () => {
   const [username, setUsername] = useState<string>("");
   const [vendingAmount, setVendingAmount] = useState<string>(""); // Set initial value to 0
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currency, setCurrency] = useState<string>("USD");
+  const [payername, setPayername] = useState<string>("");
 
   const fetchVendingToken = async () => {
     try {
@@ -72,7 +76,7 @@ const page = () => {
     ).toString();
 
     try {
-      const response = await fetch("http://localhost:18012/initiatePayment", {
+      const response = await fetch(`http://localhost:18012/initiatePayment?merchantAddress=${encodeURIComponent(merchantAddress)}&merchantpwd=${encodeURIComponent(merchantPassword)}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,6 +86,7 @@ const page = () => {
           wallet: userWalletAddress,
           amount: convertedAmount,
           username: username,
+          payername: payername,
         }),
       });
       const data = await response.json();
@@ -150,6 +155,17 @@ const page = () => {
           className="w-full max-w-md mx-10"
         >
           <div className="flex-col border p-4 rounded-lg bg-white border-gray-300">
+            {/* Input for username */}
+            <div className="py-2 sm:py-5 text-black">
+              <p>Name</p>
+              <input
+                type="text"
+                placeholder="Enter your Name"
+                value={payername}
+                onChange={(e) => setPayername(e.target.value)}
+                className="focus:outline-none focus:ring-transparent border-2 p-2 rounded-md w-full"
+              />
+            </div>
             {/* Input for username */}
             <div className="py-2 sm:py-5 text-black">
               <p>Espees Account to fund</p>

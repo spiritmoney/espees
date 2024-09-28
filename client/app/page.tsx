@@ -10,7 +10,7 @@ const page = () => {
       <Header />
       <Hero />
       <Features />
-      <Footer />
+      {/* <Footer /> */}
     </main>
   );
 }

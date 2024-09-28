@@ -16,7 +16,7 @@ const port = process.env.PORT || 18012;
 const apiKey: string = "V9yKoxl5EljDbawloXWHaD2zgclp28U9f5YSY3U3";
 const agentWallet: string = "0x0bd3e40f8410ea473850db5479348f074d254ded";
 const agentPin: string = "1234";
-const merchantAddress: string = "0x0bd3e40f8410ea473850db5479348f074d254ded";
+const merchantAddress: string = "0x6376d76009ba9ed381011134efae927b3f5cbd0f";
 const merchantpwd: string = "1234";
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -51,6 +51,7 @@ export const fetchVendingToken = async (
       headers: options.headers,
     });
     const data = response.data;
+    console.log("Success response:", data); // Log successful response
     res.status(200).json(response.data);
     return data;
   } catch (err) {
@@ -84,6 +85,7 @@ export const fetchUserWallet = async (
       headers: options.headers,
     });
     const data = response.data;
+    console.log("Success response:", data); // Log successful response
     res.status(200).json(response.data);
     return data;
   } catch (err) {
@@ -116,9 +118,10 @@ router.post(`/handleVendEspees`, async function (req: Request, res: Response) {
       throw new Error("Failed to vend Espees");
     }
     const data = await response.json();
-    console.log(data);
+    console.log("Success response:", data); // Log successful response
     return res.status(200).json(data);
   } catch (error) {
+    console.error("Error:", error);
     return res.sendStatus(400);
   }
 });
@@ -140,14 +143,14 @@ router.post("/registerProduct", async (req: Request, res: Response) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // "x-api-key": apiKey,
+      "x-api-key": apiKey,
       admin: merchantAddress,
       adminpwd: merchantpwd,
     },
     body: JSON.stringify({
       op: "recordproduct",
       params: [
-        { name: "productid", value: "100" },
+        { name: "productid", value: "001" },
         { name: "productname", value: "ESPEES" },
         { name: "description", value: "This is a payment for ESPEES." },
         {
@@ -163,7 +166,7 @@ router.post("/registerProduct", async (req: Request, res: Response) => {
     const response = await httpsAgent.post(url, options.body, {
       headers: options.headers,
     });
-    console.log("Response from API:", response.data);
+    console.log("Response from API:", response.data); // Log successful response
     const data = response.data;
     res.status(200).json(response.data);
     return data;
@@ -177,11 +180,21 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
   console.log("Received payment initialization request:", req.body);
 
   const {
-    currency,
     wallet,
+    currency,
     amount,
-    username
-  }: { currency: string; wallet: string; amount: string; username: string; } = req.body;
+    payername,
+  } = req.body;
+
+  // Get merchant address and password from query parameters
+  const merchantAddress = req.query.merchantAddress as string;
+  const merchantpwd = req.query.merchantpwd as string;
+
+  if (!merchantAddress || !merchantpwd) {
+    return res.status(400).json({ msg: "Merchant address and password are required." });
+  }
+
+  const paymentType = currency === "USD" ? "card" : currency === "NGN" ? "bank" : "default";
 
   const url = "https://restapi.connectw.com/api/payment";
 
@@ -195,54 +208,24 @@ router.post("/initiatepayment", async (req: Request, res: Response) => {
     body: JSON.stringify({
       op: "paymentinitialize",
       params: [
-        {
-          name: "currency",
-          value: currency,
-        },
-        {
-          name: "address",
-          value: wallet,
-        },
-        {
-          name: "amount",
-          value: amount,
-        },
-        {
-          name: "success_url",
-          value: "https://espees.vercel.app/buy/success",
-        },
-        {
-          name: "cancel_url",
-          value: "https://espees.vercel.app/buy/cancel",
-        },
-        {
-          name: "feetype",
-          value: "0",
-        },
-        {
-          name: "passthrough",
-          value: "0",
-        },
-        {
-          name: "exchange",
-          value: "0",
-        },
-        {
-          name: "payername",
-          value: username
-        },
-        {
-          name: "token",
-          value: "111"
-        }
+        { name: "address", value: wallet },
+        { name: "token", value: "101" },
+        { name: "currency", value: currency },
+        { name: "amount", value: amount },
+        { name: "success_url", value: "https://espees.vercel.app/buy/success" },
+        { name: "cancel_url", value: "https://espees.vercel.app/buy/cancel" },
+        { name: "paymenttype", value: paymentType },
+        { name: "passthrough", value: "0" },
+        { name: "commissionrate", value: "0" },
+        { name: "exchange", value: "1" },
+        { name: "payername", value: payername },
+        { name: "payerzipcode", value: "null" },
+        { name: "reusewallet", value: "1" },
       ],
     }),
   };
 
-  console.log(
-    "Sending request with options:",
-    JSON.stringify(options, null, 2)
-  );
+  console.log("Sending request with options:", JSON.stringify(options, null, 2));
 
   try {
     const response = await fetch(url, options);
@@ -281,7 +264,7 @@ router.post("/getProject", async (req: Request, res: Response) => {
     const response = await axios.post(url, options.body, {
       headers: options.headers,
     });
-    console.log("Response from API:", response.data);
+    console.log("Response from API:", response.data); // Log successful response
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Error:", error);
@@ -316,7 +299,109 @@ router.post("/recordTransaction", async (req: Request, res: Response) => {
     const response = await axios.post(url, options.body, {
       headers: options.headers,
     });
-    console.log("Response from API:", response.data);
+    console.log("Response from API:", response.data); // Log successful response
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ msg: "Internal Server Error." });
+  }
+});
+
+// API #17: CREATE A SUB MERCHANT
+router.post("/createSubMerchant", async (req: Request, res: Response) => {
+  const { merchantAddr, merchantname, description } = req.body; // Extract values from request body
+  const url = "https://restapi.connectw.com/api/payment";
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      admin: merchantAddress,
+      adminpwd: merchantpwd,
+    },
+    body: JSON.stringify({
+      op: "recordmerchant",
+      params: [
+        { name: "merchantaddress", value: merchantAddr },
+        { name: "merchantname", value: merchantname}, // Use value from request or empty string
+        { name: "description", value: description}, // Use value from request or empty string
+        {
+          name: "merchantimage",
+          value:
+            "https://lwappstore.com/developers/uploads/espeesCoinOption5.png",
+        },
+        { name: "cancreatevirtualcards", value: "0" },
+        { name: "maxtxn", value: "500" },
+        { name: "mintxn", value: "1" },
+        { name: "minbal", value: "1" },
+      ],
+    }),
+  };
+
+  try {
+    const response = await axios.post(url, options.body, { headers: options.headers });
+    console.log("Response from API:", response.data); // Log successful response
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ msg: "Internal Server Error." });
+  }
+});
+
+// API #18: UPDATE A SUB MERCHANT
+router.post("/updateSubMerchant", async (res: Response) => {
+  const url = "https://restapi.connectw.com/api/payment";
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      admin: merchantAddress,
+      adminpwd: merchantpwd,
+    },
+    body: JSON.stringify({
+      op: "updatemerchant",
+      params: [
+        { name: "merchantaddress", value: "0xc43da1792d94d443dfe6de07563f11c287d828cd" },
+        { name: "merchantname", value: "Test Merchant" },
+        { name: "description", value: "This is a test project for Toros." },
+        { name: "merchantimage", value: "https://toronet.org/explorer/images/toro-logo.png" },
+        { name: "cancreatevirtualcards", value: "0" },
+        { name: "maxtxn", value: "500" },
+        { name: "mintxn", value: "1" },
+        { name: "minbal", value: "1" },
+      ],
+    }),
+  };
+
+  try {
+    const response = await axios.post(url, options.body, { headers: options.headers });
+    console.log("Response from API:", response.data); // Log successful response
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ msg: "Internal Server Error." });
+  }
+});
+
+// API #19: VIEW A SUB MERCHANT
+router.post("/viewSubMerchant", async (req: Request, res: Response) => {
+  const { merchantAddress } = req.body; // Get merchant address from request body
+  const url = "https://restapi.connectw.com/api/payment";
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      admin: merchantAddress,
+      adminpwd: merchantpwd,
+    },
+    body: JSON.stringify({
+      op: "getmerchant",
+      params: [{ name: "merchantaddress", value: merchantAddress }],
+    }),
+  };
+
+  try {
+    const response = await axios.post(url, options.body, { headers: options.headers });
+    console.log("Response from API:", response.data); // Log successful response
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Error:", error);
@@ -328,5 +413,5 @@ app.use(express.json());
 app.use(router);
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on http://localhost:18012`);
 });
